@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoGalleryFragment extends Fragment {
+
+    private static final String TAG = "PhotoGalleryFragment";
+
     private RecyclerView mPhotoRecyclerView;
     private List<GalleryItem> mItems = new ArrayList<>();
 
@@ -28,7 +31,7 @@ public class PhotoGalleryFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        new FetchItemsTask(null).execute();
+        new FetchItemsTask().execute();
     }
 
     @Nullable
@@ -51,21 +54,9 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private class FetchItemsTask extends AsyncTask<Void, Void, List<GalleryItem>> {
-        private String mQuery;
-
-        public FetchItemsTask(String query) {
-            mQuery = query;
-        }
-
         @Override
         protected List<GalleryItem> doInBackground(Void... voids) {
-//            return new FlickrFetchr().fetchItems();
-
-            if (mQuery == null) {
-                return new QiniuPhotos().fetchRecentPhotos();
-            } else {
-                return new QiniuPhotos().searchPhotos(mQuery);
-            }
+            return new FlickrFetchr().fetchItems();
         }
 
         @Override

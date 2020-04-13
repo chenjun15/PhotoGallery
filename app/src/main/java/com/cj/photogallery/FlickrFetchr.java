@@ -31,7 +31,7 @@ public class FlickrFetchr {
                 throw new IOException(connection.getResponseMessage() + ": with " + urlSpec);
             }
 
-            int bytesRead = 0;
+            int bytesRead;
             byte[] buffer = new byte[1024];
             while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);
@@ -81,7 +81,7 @@ public class FlickrFetchr {
 
             GalleryItem item = new GalleryItem();
             item.setId(photoJsonObject.getString("id"));
-            item.setCation(photoJsonObject.getString("title"));
+            item.setCaption(photoJsonObject.getString("title"));
 
             if (!photoJsonObject.has("url_s"))
                 continue;

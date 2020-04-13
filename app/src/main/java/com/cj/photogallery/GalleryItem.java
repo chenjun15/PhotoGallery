@@ -3,22 +3,22 @@ package com.cj.photogallery;
 import androidx.annotation.NonNull;
 
 public class GalleryItem {
-    private String mCation;
+    private String mCaption;
     private String mId;
     private String mUrl;
 
     @NonNull
     @Override
     public String toString() {
-        return mCation;
+        return mCaption;
     }
 
-    public String getCation() {
-        return mCation;
+    public String getCaption() {
+        return mCaption;
     }
 
-    public void setCation(String cation) {
-        mCation = cation;
+    public void setCaption(String caption) {
+        mCaption = caption;
     }
 
     public String getId() {
