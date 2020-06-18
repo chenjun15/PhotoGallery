@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
+import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 
@@ -16,12 +17,14 @@ import java.util.concurrent.ConcurrentMap;
 public class ThumbnailDownloader<T> extends HandlerThread {
     private static final String TAG = "ThumbnailDownloader";
     public static final int MESSAGE_DOWNLOAD = 0;
+    public static final int CACHE_SIZE = 10 * 1024 * 1024;   // 10MB
 
     private Boolean mHasQuit = false;
     private Handler mRequestHandler;
     private ConcurrentMap<T, String> mRequestMap = new ConcurrentHashMap<>();
     private Handler mResponseHandler;
     private ThumbnailDownloadListener<T> mThumbnailDownloadListener;
+    private LruCache<String, Bitmap> mBitmapCache;
 
     public interface ThumbnailDownloadListener<T> {
         void onThumbnailDownloaded(T target, Bitmap thumbnail);
@@ -34,6 +37,12 @@ public class ThumbnailDownloader<T> extends HandlerThread {
     public ThumbnailDownloader(Handler responseHandler) {
         super(TAG);
         mResponseHandler = responseHandler;
+        mBitmapCache = new LruCache<String, Bitmap>(CACHE_SIZE) {
+            @Override
+            protected int sizeOf(String key, Bitmap value) {
+                return value.getByteCount();
+            }
+        };
     }
 
     @Override
@@ -79,8 +88,14 @@ public class ThumbnailDownloader<T> extends HandlerThread {
             if (url == null)
                 return;
 
-            byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
-            final Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+            final Bitmap bitmap;
+            if (mBitmapCache.get(url) != null) {
+                bitmap = mBitmapCache.get(url);
+            } else {
+                byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
+                bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+                mBitmapCache.put(url, bitmap);
+            }
             Log.i(TAG, "handleRequest: Bitmat created");
             mResponseHandler.post(new Runnable() {
                 @Override
