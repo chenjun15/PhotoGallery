@@ -133,6 +133,10 @@ public class PhotoGalleryFragment extends Fragment {
             Drawable placeholder = getResources().getDrawable(R.drawable.bill_up_close);
             holder.bindDrawable(placeholder);
             mThumbnailDownloader.queueThumbnail(holder, galleryItem.getUrl());
+            for (int i = Math.max(0, position - 10); i < position; ++i)
+                mThumbnailDownloader.queueThumbnail(holder, mItems.get(i).getUrl());
+            for (int i = position + 1; i < mItems.size() && i <= position + 10; ++i)
+                mThumbnailDownloader.queueThumbnail(holder, mItems.get(i).getUrl());
         }
 
         @Override
