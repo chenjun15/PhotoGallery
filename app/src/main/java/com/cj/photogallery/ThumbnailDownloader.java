@@ -17,7 +17,7 @@ public class ThumbnailDownloader<T> extends HandlerThread {
     private static final String TAG = "ThumbnailDownloader";
     public static final int MESSAGE_DOWNLOAD = 0;
 
-    private Boolean mHasQuit = false;
+    private boolean mHasQuit = false;
     private Handler mRequestHandler;
     private ConcurrentMap<T, String> mRequestMap = new ConcurrentHashMap<>();
     private Handler mResponseHandler;
@@ -81,7 +81,7 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
             byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
             final Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-            Log.i(TAG, "handleRequest: Bitmat created");
+            Log.i(TAG, "handleRequest: Bitmap created");
             mResponseHandler.post(new Runnable() {
                 @Override
                 public void run() {

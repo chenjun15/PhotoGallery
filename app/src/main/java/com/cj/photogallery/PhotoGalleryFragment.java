@@ -1,5 +1,6 @@
 package com.cj.photogallery;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -85,7 +86,7 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull final Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_photo_gallery, menu);
 
@@ -108,23 +109,34 @@ public class PhotoGalleryFragment extends Fragment {
             }
         });
 
-        searchView.setOnClickListener(new View.OnClickListener() {
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String query = QueryPreferences.getStoredQuery(getActivity());
                 searchView.setQuery(query, false);
             }
         });
+
+        MenuItem toggleItem = menu.findItem(R.id.menu_item_toggle_polling);
+        toggleItem.setTitle(PollService.isServiceAlarmOn(getActivity()) ? R.string.stop_polling : R.string.start_polling);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
         case R.id.menu_item_clear:
+            Log.i(TAG, "onOptionsItemSelected: menu_item_clear");
             QueryPreferences.setStoredQuery(getActivity(), null);
             updateItems();
             return true;
+        case R.id.menu_item_toggle_polling:
+            Log.i(TAG, "onOptionsItemSelected: menu_item_toggle_polling");
+            boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
+            PollService.setServiceAlarm(getActivity(), shouldStartAlarm);
+            getActivity().invalidateOptionsMenu();
+            return true;
         default:
+            Log.i(TAG, "onOptionsItemSelected: default");
             return super.onOptionsItemSelected(item);
         }
     }
@@ -137,25 +149,6 @@ public class PhotoGalleryFragment extends Fragment {
     private void setupAdapter() {
         if (isAdded()) {
             mPhotoRecyclerView.setAdapter(new PhotoAdapter(mItems));
-        }
-    }
-
-    private class FetchItemsTask extends AsyncTask<Void, Void, List<GalleryItem>> {
-        private String mQuery;
-
-        public FetchItemsTask(String query) {
-            mQuery = query;
-        }
-
-        @Override
-        protected List<GalleryItem> doInBackground(Void... voids) {
-            return mQuery == null ? new FlickrFetchr().fetchRecentPhotos() : new FlickrFetchr().searchPhotos(mQuery);
-        }
-
-        @Override
-        protected void onPostExecute(List<GalleryItem> items) {
-            mItems = items;
-            setupAdapter();
         }
     }
 
@@ -199,6 +192,25 @@ public class PhotoGalleryFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mGalleryItems.size();
+        }
+    }
+
+    private class FetchItemsTask extends AsyncTask<Void, Void, List<GalleryItem>> {
+        private String mQuery;
+
+        public FetchItemsTask(String query) {
+            mQuery = query;
+        }
+
+        @Override
+        protected List<GalleryItem> doInBackground(Void... voids) {
+            return mQuery == null ? new FlickrFetchr().fetchRecentPhotos() : new FlickrFetchr().searchPhotos(mQuery);
+        }
+
+        @Override
+        protected void onPostExecute(List<GalleryItem> items) {
+            mItems = items;
+            setupAdapter();
         }
     }
 }
