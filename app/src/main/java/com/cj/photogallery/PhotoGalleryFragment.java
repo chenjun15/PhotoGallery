@@ -1,10 +1,10 @@
 package com.cj.photogallery;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -118,7 +118,10 @@ public class PhotoGalleryFragment extends Fragment {
         });
 
         MenuItem toggleItem = menu.findItem(R.id.menu_item_toggle_polling);
-        toggleItem.setTitle(PollService.isServiceAlarmOn(getActivity()) ? R.string.stop_polling : R.string.start_polling);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            toggleItem.setTitle(PollServiceScheduler.hasBeenScheduled(getActivity()) ? R.string.stop_polling : R.string.start_polling);
+        else
+            toggleItem.setTitle(PollServiceAlarm.isServiceAlarmOn(getActivity()) ? R.string.stop_polling : R.string.start_polling);
     }
 
     @Override
@@ -130,9 +133,14 @@ public class PhotoGalleryFragment extends Fragment {
             updateItems();
             return true;
         case R.id.menu_item_toggle_polling:
-            Log.i(TAG, "onOptionsItemSelected: menu_item_toggle_polling");
-            boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
-            PollService.setServiceAlarm(getActivity(), shouldStartAlarm);
+            Log.i(TAG, "onOptionsItemSelected: menu_item_toggle_polling, Build.VERSION.SDK_INT=" + Build.VERSION.SDK_INT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                boolean shouldSchedule = !PollServiceScheduler.hasBeenScheduled(getActivity());
+                PollServiceScheduler.setJobSchedule(getActivity(), shouldSchedule);
+            } else {
+                boolean shouldStartAlarm = !PollServiceAlarm.isServiceAlarmOn(getActivity());
+                PollServiceAlarm.setServiceAlarm(getActivity(), shouldStartAlarm);
+            }
             getActivity().invalidateOptionsMenu();
             return true;
         default:

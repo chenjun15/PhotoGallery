@@ -6,7 +6,7 @@
         android:id="@+id/menu_item_search"
         android:title="@string/search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_item_clear"
@@ -16,6 +16,6 @@
     <item
         android:id="@+id/menu_item_toggle_polling"
         android:title="@string/start_polling"
-        app:showAsAction="withText" />
+        app:showAsAction="always" />
 
 </menu>

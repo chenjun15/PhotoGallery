@@ -13,7 +13,6 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -22,19 +21,19 @@ import androidx.core.app.NotificationManagerCompat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class PollService extends IntentService {
-    private static final String TAG = "PollService";
+public class PollServiceAlarm extends IntentService {
+    private static final String TAG = "PollServiceAlarm";
 
     private static final long POLL_INTERVAL_MS = TimeUnit.MINUTES.toMillis(1);
-    public static final String CHANNEL_ID = "PollService";
-    public static final String CHANNEL_NAME = "PhotoGallery PollService";
+    public static final String CHANNEL_ID = "PollServiceAlarm";
+    public static final String CHANNEL_NAME = "PhotoGallery PollServiceAlarm";
 
     public static Intent newIntent(Context context) {
-        return new Intent(context, PollService.class);
+        return new Intent(context, PollServiceAlarm.class);
     }
 
     public static void setServiceAlarm(Context context, boolean isOn) {
-        Intent i = PollService.newIntent(context);
+        Intent i = PollServiceAlarm.newIntent(context);
         PendingIntent pi = PendingIntent.getService(context, 0, i, 0);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -48,12 +47,12 @@ public class PollService extends IntentService {
     }
 
     public static boolean isServiceAlarmOn(Context context) {
-        Intent i = PollService.newIntent(context);
+        Intent i = PollServiceAlarm.newIntent(context);
         PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_NO_CREATE);
         return pi != null;
     }
 
-    public PollService() {
+    public PollServiceAlarm() {
         super(TAG);
     }
 
