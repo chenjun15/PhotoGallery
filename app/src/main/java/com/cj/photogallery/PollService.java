@@ -107,7 +107,6 @@ public class PollService extends IntentService {
 
             notificationManager.notify(0, notification);
 
-            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
             showBackgroundNotification(0, notification);
         }
 
